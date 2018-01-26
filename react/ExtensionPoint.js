@@ -5,6 +5,23 @@ import treePath from 'react-tree-path'
 const empty = <span className="ExtensionPoint--empty" />
 
 class ExtensionPoint extends Component {
+  static propTypes = {
+    id: PropTypes.string.isRequired,
+    children: PropTypes.node,
+    implementation: PropTypes.func,
+    settings: PropTypes.object,
+    treePath: PropTypes.string,
+  }
+
+  static contextTypes = {
+    extensions: PropTypes.object,
+    pages: PropTypes.object,
+    page: PropTypes.string,
+    editExtensionPoint: PropTypes.func,
+    editMode: PropTypes.bool,
+    production: PropTypes.bool,
+  }
+
   constructor(props, context) {
     super()
 
@@ -12,15 +29,19 @@ class ExtensionPoint extends Component {
 
     const {extensions} = context
 
-    this._handleExtensionPointUpdate = this._handleExtensionPointUpdate.bind(this)
-
     this.state = {
       extension: extensions[treePath],
+      isEditable: !!(extensions[treePath] && extensions[treePath].props),
     }
   }
 
+  handleEditClick = () => {
+    const {editExtensionPoint} = this.context
+    editExtensionPoint(this.props.treePath)
+  }
+
   render() {
-    const {pages} = this.context
+    const {pages, production, editMode} = this.context
     const {extension} = this.state
     const {children, treePath, ...other} = this.props
 
@@ -34,6 +55,11 @@ class ExtensionPoint extends Component {
     const {component, props: extensionProps} = extension
     const Component = global.__RENDER_6_COMPONENTS__[component]
 
+    if (!Component) {
+      // If extension.component exists, display error: component not found.
+      return empty
+    }
+
     const props = {
       params,
       query,
@@ -41,10 +67,22 @@ class ExtensionPoint extends Component {
       ...other,
     }
 
-    return Component ? <Component {...props}>{children}</Component> : empty
+    const editable = !production && editMode && Component.schema
+    const className = editable ? 'relative' : ''
+    const onClick = editable ? this.handleEditClick : undefined
+
+    // TODO: ErrorBoundary
+    return (
+      <div
+        className={className}
+        onClick={onClick}>
+        {editable && <div className="absolute w-100 h-100 bg-blue z-2 br2 o-20 dim pointer"></div>}
+        <Component {...props}>{children}</Component>
+      </div>
+    )
   }
 
-  _handleExtensionPointUpdate() {
+  _handleExtensionPointUpdate = () => {
     const {treePath} = this.props
     const {extensions} = this.context
     this.setState({
@@ -97,20 +135,6 @@ class ExtensionPoint extends Component {
         this._handleExtensionPointUpdate,
       )
   }
-}
-
-ExtensionPoint.propTypes = {
-  id: PropTypes.string.isRequired,
-  children: PropTypes.node,
-  implementation: PropTypes.func,
-  settings: PropTypes.object,
-  treePath: PropTypes.string,
-}
-
-ExtensionPoint.contextTypes = {
-  extensions: PropTypes.object,
-  pages: PropTypes.object,
-  page: PropTypes.string,
 }
 
 export default treePath(ExtensionPoint)

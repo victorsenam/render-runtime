@@ -8,6 +8,9 @@
   "builders": {
     "react": "1.x"
   },
+  "dependencies": {
+    "vtex.pages-graphql": "0.x"
+  },
   "mustUpdateAt": "2018-09-05",
   "categories": [],
   "registries": [

@@ -46,7 +46,7 @@ function _renderToStringWithData(component) {
 const renderToStringWithData =
   !canUseDOM && _renderToStringWithData
 
-const {account, culture: {locale}, messages, settings, extensions, pages, page} = global.__RUNTIME__
+const {account, culture: {locale}, messages, settings, extensions, pages, page, production} = global.__RUNTIME__
 
 // Map `placeholder/with/slashes` to `render-placeholder-with-slashes`.
 const containerId = name => `render-${name.replace(/\//g, '-')}`
@@ -77,6 +77,7 @@ const render = name => {
           settings={settings}
           locale={locale}
           messages={messages}
+          production={production}
         >
           {component}
         </RenderProvider>

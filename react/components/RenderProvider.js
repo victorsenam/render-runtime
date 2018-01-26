@@ -3,6 +3,8 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {IntlProvider} from 'react-intl'
 
+import EditBar from './EditBar'
+
 const YEAR_IN_MS = 12 * 30 * 24 * 60 * 60 * 1000
 
 const acceptJson = canUseDOM && new Headers({
@@ -46,6 +48,8 @@ class RenderProvider extends Component {
     this.state = {
       locale: props.locale,
       messages: props.messages,
+      editMode: false,
+      editTreePath: null,
     }
   }
 
@@ -95,14 +99,17 @@ class RenderProvider extends Component {
   }
 
   getChildContext() {
-    const {account, extensions, page, pages, settings} = global.__RUNTIME__
+    const {account, extensions, pages, page, settings, production} = global.__RUNTIME__
     return {
       account,
       extensions,
       pages,
       page,
+      production,
       getSettings: locator => settings[locator],
       updateRuntime: this.updateRuntime,
+      editExtensionPoint: this.editExtensionPoint,
+      editMode: this.state.editMode,
     }
   }
 
@@ -125,11 +132,31 @@ class RenderProvider extends Component {
       return global.__RUNTIME__
     })
 
+  editExtensionPoint = (treePath) => {
+    this.setState((state) => ({
+      ...state,
+      editTreePath: treePath,
+    }))
+  }
+
+  toggleEditMode = () => {
+    const {eventEmitter} = global.__RUNTIME__
+    this.setState({
+      ...this.state,
+      editMode: !this.state.editMode,
+    })
+    eventEmitter.emit('extension:*:update')
+  }
+
   render() {
-    const {locale, messages} = this.state
+    const {production} = global.__RUNTIME__
+    const {locale, messages, editMode, editTreePath} = this.state
     return (
       <IntlProvider locale={locale} messages={messages}>
-        {React.Children.only(this.props.children)}
+        <div>
+          {React.Children.only(this.props.children)}
+          {!production && <EditBar toggleEditMode={this.toggleEditMode} editMode={editMode} editTreePath={editTreePath} />}
+        </div>
       </IntlProvider>
     )
   }
@@ -144,6 +171,7 @@ RenderProvider.propTypes = {
   page: PropTypes.string,
   messages: PropTypes.object,
   locale: PropTypes.string,
+  production: PropTypes.bool,
 }
 
 RenderProvider.childContextTypes = {
@@ -153,6 +181,9 @@ RenderProvider.childContextTypes = {
   page: PropTypes.string,
   getSettings: PropTypes.func,
   updateRuntime: PropTypes.func,
+  editMode: PropTypes.bool,
+  editExtensionPoint: PropTypes.func,
+  production: PropTypes.bool,
 }
 
 export default RenderProvider
