@@ -68,7 +68,7 @@ class ComponentEditor extends Component {
     return (
       <div className="mw6 center mv3">
         <h4 className="mt1">
-          {extensionName}
+          {extensionName} nhad
         </h4>
         <Form
           schema={component.schema}
