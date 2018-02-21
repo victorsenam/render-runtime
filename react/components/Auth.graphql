@@ -1,0 +1,6 @@
+query Auth($url: String) {
+  authUser(url: $url) {
+    authenticated,
+    redirectTo
+  }
+}

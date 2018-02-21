@@ -11,6 +11,7 @@ import getClient from './utils/client'
 import RenderProvider from './components/RenderProvider'
 import Img from './components/Img'
 import Link from './components/Link'
+import AuthEnsurer from './components/AuthEnsurer'
 import ExtensionContainer from './ExtensionContainer'
 import ExtensionPoint from './ExtensionPoint'
 
@@ -22,6 +23,8 @@ if (global.IntlPolyfill) {
     global.Intl.DateTimeFormat = global.IntlPolyfill.DateTimeFormat
   }
 }
+
+global.RenderRedirectError = global.RenderRedirectError || Error
 
 const {culture: {locale}, extensions, pages} = global.__RUNTIME__
 
@@ -130,6 +133,7 @@ function start(rootName) {
 
 global.__RENDER_6_RUNTIME__ = {
   start,
+  AuthEnsurer,
   ExtensionContainer,
   ExtensionPoint,
   Img,
