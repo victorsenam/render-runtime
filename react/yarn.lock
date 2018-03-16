@@ -6,6 +6,10 @@
   version "2.0.47"
   resolved "https://registry.yarnpkg.com/@types/async/-/async-2.0.47.tgz#f49ba1dd1f189486beb6e1d070a850f6ab4bd521"
 
+"@types/graphql@^0.12.5":
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/@types/graphql/-/graphql-0.12.5.tgz#24993f51177a8afa2c5d49bed1d8fb6bf8d06ded"
+
 "@types/history@^4.6.2":
   version "4.6.2"
   resolved "https://registry.yarnpkg.com/@types/history/-/history-4.6.2.tgz#12cfaba693ba20f114ed5765467ff25fdf67ddb0"

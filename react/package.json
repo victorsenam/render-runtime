@@ -31,6 +31,7 @@
     "route-parser": "^0.0.5"
   },
   "devDependencies": {
+    "@types/graphql": "^0.12.5",
     "@types/history": "^4.6.2",
     "@types/intl": "^1.2.0",
     "@types/node": "^9.4.7",
