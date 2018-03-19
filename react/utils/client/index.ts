@@ -5,6 +5,7 @@ import {createHttpLink} from 'apollo-link-http'
 import {createPersistedQueryLink} from 'apollo-link-persisted-queries'
 import {canUseDOM} from 'exenv'
 import {uriSwitchLink} from './links/uriSwitchLink'
+import {versionSplitterLink} from './links/versionSplitterLink'
 
 interface ApolloClientsRegistry {
   [key: string]: ApolloClient<NormalizedCacheObject>
@@ -41,11 +42,11 @@ export const getClient = (runtime: RenderRuntime) => {
 
     const persistedQueryLink = createPersistedQueryLink({
       disable: () => true,
-      generateHash: ({documentId}: {documentId: string}) => documentId,
+      generateHash: ({documentId}: any) => documentId,
       useGETForHashedQueries: true
     })
 
-    const link = uriSwitchLink.concat(persistedQueryLink.concat(httpLink))
+    const link = versionSplitterLink.concat(uriSwitchLink.concat(persistedQueryLink.concat(httpLink)))
 
     clientsByWorkspace[`${account}/${workspace}`] = new ApolloClient({
       cache: canUseDOM ? cache.restore(global.__STATE__) : cache,

@@ -1,4 +1,4 @@
-import {ApolloLink, NextLink, Observable, Operation} from 'apollo-link'
+import {ApolloLink, NextLink, Observable, Operation, RequestHandler} from 'apollo-link'
 import {visit} from 'graphql'
 
 const versionVisitorExtractor = (versionHolder: any) => {
@@ -12,7 +12,7 @@ const versionVisitorExtractor = (versionHolder: any) => {
 }
 
 const versionFromQuery = (query: any) => {
-  const versionHolder = {version: '2'}
+  const versionHolder = {version: '0'}
   const versionExtractor = versionVisitorExtractor(versionHolder)
   visit(query, versionExtractor)
   return versionHolder.version
@@ -20,7 +20,7 @@ const versionFromQuery = (query: any) => {
 
 const uriFromQuery = (query: any) => `/_v/v${versionFromQuery(query)}/graphql`
 
-export const uriSwitchLink = new ApolloLink((operation: Operation, forward: NextLink) => {
+export const uriSwitchLink = new ApolloLink((operation: Operation, forward?: NextLink) => {
   const context = operation.getContext()
   const {query} = operation
 
@@ -29,7 +29,7 @@ export const uriSwitchLink = new ApolloLink((operation: Operation, forward: Next
     uri: uriFromQuery(query)
   })
 
-  return forward(operation)
+  return forward ? forward(operation) : null
 })
 
 /*
