@@ -124,6 +124,7 @@ declare global {
     culture: Culture
     pages: Pages
     extensions: Extensions
+    platform: string
     production: boolean
     publicEndpoint: string
     messages: Record<string, string>
