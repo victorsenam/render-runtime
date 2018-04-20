@@ -188,6 +188,9 @@ export default class ExtensionPointComponent extends PureComponent<Props, State>
     const {error} = this.state
     const Component = component && getImplementation(component)
 
+    console.log('ext point comp', treePath, props.culture)
+
+
     // A children of this extension point throwed an uncaught error
     if (error) {
       return production ? null : this.renderError()

@@ -3,7 +3,7 @@ import React, {Component, ReactElement} from 'react'
 import withTreePath, {TreePathProps} from 'react-tree-path'
 
 import ExtensionPointComponent from './components/ExtensionPointComponent'
-import {RenderProviderState} from './components/RenderProvider'
+import {CultureContext, RenderProviderState} from './components/RenderProvider'
 
 interface Props {
   id: string,
@@ -101,14 +101,20 @@ class ExtensionPoint extends Component<ExtendedProps, State> {
     const {children, params, query, id, ...parentProps} = this.props
     const {component, props: extensionProps} = this.state
 
-    const props = {
-      ...parentProps,
-      ...extensionProps,
-      params,
-      query,
-    }
-
-    return <ExtensionPointComponent component={component} props={props}>{children}</ExtensionPointComponent>
+    console.log('ext point', this.props.treePath)
+    return <CultureContext.Consumer>
+      {(culture) => {
+        const props = {
+          ...parentProps,
+          ...extensionProps,
+          culture,
+          params,
+          query,
+        }
+        console.log('ext point in context', this.props.treePath, culture && culture.locale)
+        return <ExtensionPointComponent component={component} props={props}>{children}</ExtensionPointComponent>
+      }}
+    </CultureContext.Consumer>
   }
 }
 

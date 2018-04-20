@@ -1,4 +1,5 @@
 import {canUseDOM} from 'exenv'
+import {History, Location, LocationListener, UnregisterCallback} from 'history'
 import PropTypes from 'prop-types'
 import {parse} from 'qs'
 import React, {Component, ReactElement} from 'react'
@@ -6,7 +7,6 @@ import {ApolloProvider} from 'react-apollo'
 import {Helmet} from 'react-helmet'
 import {IntlProvider} from 'react-intl'
 
-import {History, Location, LocationListener, UnregisterCallback} from 'history'
 import {fetchAssets} from '../utils/assets'
 import {getClient} from '../utils/client'
 import {loadLocaleData} from '../utils/locales'
@@ -20,6 +20,8 @@ import PageCacheControl from '../utils/cacheControl'
 import BuildStatus from './BuildStatus'
 import ExtensionPointComponent from './ExtensionPointComponent'
 import NestedExtensionPoints from './NestedExtensionPoints'
+
+export const CultureContext = React.createContext()
 
 interface Props {
   children: ReactElement<any> | null
@@ -38,6 +40,7 @@ export interface RenderProviderState {
   page: RenderRuntime['page']
   pages: RenderRuntime['pages']
   production: RenderRuntime['production']
+  userMessages: Record<string, string>
   query: RenderRuntime['query']
 }
 
@@ -95,6 +98,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
       pages,
       production,
       query,
+      userMessages: {},
     }
   }
 
@@ -223,7 +227,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
   }
 
   public onLocalesUpdated = (locales: string[]) => {
-    const {runtime: {emitter, renderMajor}} = this.props
+    const {runtime: {renderMajor}} = this.props
     const {page, production, culture: {locale}} = this.state
 
     // Current locale is one of the updated ones
@@ -232,7 +236,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
         .then(messages => {
           this.setState({
             messages,
-          }, () => emitter.emit('extension:*:update'))
+          })
         })
         .catch(e => {
           console.log('Failed to fetch new locale file.')
@@ -242,7 +246,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
   }
 
   public onLocaleSelected = (locale: string) => {
-    const {runtime: {emitter, renderMajor}} = this.props
+    const {runtime: {renderMajor}} = this.props
     const {page, production} = this.state
 
     if (locale !== this.state.culture.locale) {
@@ -258,7 +262,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
             locale,
           },
           messages,
-        }, () => emitter.emit('extension:*:update'))
+        })
       })
       .then(() => window.postMessage({key: 'cookie.locale', body: {locale}}, '*'))
       .catch(e => {
@@ -295,9 +299,26 @@ class RenderProvider extends Component<Props, RenderProviderState> {
     }, () => emitter.emit(`extension:${name}:update`, this.state))
   }
 
+  public updateUserMessages = (messages: Record<string, string>) => {
+    this.setState({
+      userMessages: {
+        ...this.state.userMessages,
+        ...messages,
+      }
+    })
+  }
+
   public render() {
     const {children, runtime} = this.props
-    const {culture: {locale}, messages, pages, page, query, production, extensions} = this.state
+    const {culture, culture: {locale}, messages, pages, page, query, production, extensions} = this.state
+
+    const cultureContext = {
+      ...culture,
+      updateLocale: this.onLocaleSelected,
+      updateUserMessages: this.updateUserMessages
+    }
+
+    console.log('cultureContext', cultureContext)
 
     const component = children
       ? React.cloneElement(children as ReactElement<any>, {query})
@@ -318,7 +339,9 @@ class RenderProvider extends Component<Props, RenderProviderState> {
     return (
       <ApolloProvider client={this.apolloClient}>
         <IntlProvider locale={locale} messages={messages}>
-          {maybeEditable}
+          <CultureContext.Provider value={cultureContext}>
+            {maybeEditable}
+          </CultureContext.Provider>
         </IntlProvider>
       </ApolloProvider>
     )

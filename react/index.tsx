@@ -7,7 +7,7 @@ import {AppContainer} from 'react-hot-loader'
 import NoSSR from 'react-no-ssr'
 
 import Link from './components/Link'
-import RenderProvider from './components/RenderProvider'
+import RenderProvider, {CultureContext} from './components/RenderProvider'
 import ExtensionContainer from './ExtensionContainer'
 import ExtensionPoint from './ExtensionPoint'
 import PageCacheControl from './utils/cacheControl'
@@ -131,6 +131,7 @@ function start() {
 }
 
 global.__RENDER_7_RUNTIME__ = {
+  CultureContext,
   ExtensionContainer,
   ExtensionPoint,
   Helmet,

@@ -1,6 +1,7 @@
 import {NormalizedCacheObject} from "apollo-cache-inmemory"
 import * as EventEmitter from 'eventemitter3'
 import { ReactElement, Component } from "react";
+import { CultureContext } from "../components/RenderProvider"
 import ExtensionContainer from "../ExtensionContainer"
 import ExtensionPoint from "../ExtensionPoint"
 import Link from "../components/Link";
@@ -146,6 +147,7 @@ declare global {
   interface RuntimeExports {
     start(): void
     render(name: string, runtime: RenderRuntime, element?: HTMLElement): Rendered
+    CultureContext: typeof CultureContext
     ExtensionContainer: typeof ExtensionContainer
     ExtensionPoint: typeof ExtensionPoint
     Link: typeof Link
