@@ -36,7 +36,7 @@ export interface TreePathProps {
 }
 
 export function withTreePath <TOriginalProps>(Component: ComponentType<TOriginalProps & TreePathProps>): ComponentType<TOriginalProps> {
-  class TreePath extends React.Component<TOriginalProps, TreePathProps> {
+  class TreePath extends React.PureComponent<TOriginalProps, TreePathProps> {
     public static contextTypes = {
       treePath: PropTypes.string
     }

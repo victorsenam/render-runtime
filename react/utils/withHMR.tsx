@@ -1,6 +1,6 @@
 import hoistNonReactStatics from 'hoist-non-react-statics'
 import PropTypes from 'prop-types'
-import React, {Component, ComponentType} from 'react'
+import React, {ComponentType, PureComponent} from 'react'
 
 import {withEmitter} from '../components/RenderContext'
 import {withTreePath} from './treePath'
@@ -26,7 +26,7 @@ export default (module: Module, InitialImplementer: any) => {
     }
   }
 
-  class HMRComponent extends Component<any, {lastUpdate?: number}> {
+  class HMRComponent extends PureComponent<any, {lastUpdate?: number}> {
     public static propTypes = {
       __clearError: PropTypes.func,
       __errorInstance: PropTypes.node,

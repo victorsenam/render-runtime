@@ -1,9 +1,15 @@
+import {canUseDOM} from 'exenv'
 import PropTypes from 'prop-types'
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
+
 import {TreePathContext, TreePathProps, withTreePath} from './utils/treePath'
 
 import ExtensionPointComponent from './components/ExtensionPointComponent'
 import {RenderContext} from './components/RenderContext'
+
+if (canUseDOM) {
+  window.__treePathToSetState__ = window.__treePathToSetState__ || {}
+}
 
 interface Props {
   id: string,
@@ -17,7 +23,7 @@ interface State {
   newTreePath: string
 }
 
-class ExtensionPoint extends Component<ExtendedProps, State> {
+class ExtensionPoint extends PureComponent<ExtendedProps, State> {
   public static propTypes = {
     children: PropTypes.node,
     params: PropTypes.object,
@@ -31,6 +37,14 @@ class ExtensionPoint extends Component<ExtendedProps, State> {
 
   private static mountTreePath (currentId: string, parentTreePath: string) {
     return [parentTreePath, currentId].filter(id => !!id).join('/')
+  }
+
+  public constructor (props: any) {
+    super(props)
+
+    this.state = {
+      editProps: null,
+    }
   }
 
   public componentWillMount() {
@@ -47,7 +61,15 @@ class ExtensionPoint extends Component<ExtendedProps, State> {
     return { treePath: this.state.newTreePath }
   }
 
+  public setEditProps = (editProps) => {
+    this.setState({editProps})
+  }
+
   public render() {
+    if (canUseDOM) {
+      window.__treePathToSetState__[this.state.newTreePath] = this.setEditProps
+    }
+
     return (
       <RenderContext.Consumer>
         {this.getExtensionPointComponent}
@@ -56,13 +78,13 @@ class ExtensionPoint extends Component<ExtendedProps, State> {
   }
 
   private getExtensionPointComponent = (runtime: RenderContext) => {
-    const {newTreePath} = this.state
+    const {newTreePath, editProps} = this.state
     const {children, params, query, id, treePath, ...parentProps} = this.props
     const extension = runtime.extensions[newTreePath]
     const component = extension ? extension.component : null
     const extensionProps = extension ? extension.props : null
 
-    const props = {
+    const props = editProps || {
       ...parentProps,
       ...extensionProps,
       params,
