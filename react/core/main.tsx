@@ -60,12 +60,18 @@ const render = (name: string, runtime: RenderRuntime, element?: HTMLElement): Re
   registerEmitter(runtime, baseURI)
   addLocaleData(locale)
 
-  const isPage = !!pages[name] && !!pages[name].path && !!extensions[name].component
+  const isPage = !!pages[name] && !!pages[name].path
   const created = !element && ensureContainer(page)
   const elem = element || getContainer(name)
   const history = canUseDOM && isPage && !customRouting ? createHistory() : null
   const root = (
-    <RenderProvider history={history} cacheControl={cacheControl} baseURI={baseURI} root={name} runtime={runtime}>
+    <RenderProvider
+      history={history}
+      cacheControl={cacheControl}
+      baseURI={baseURI}
+      root={name}
+      runtime={runtime}
+    >
       {!isPage ? <ExtensionPoint id={name} /> : null}
     </RenderProvider>
   )
@@ -95,7 +101,7 @@ function start() {
   try {
     const runtime = window.__RUNTIME__
     const rootName = runtime.page
-    validateRootComponent(rootName, runtime.extensions)
+    // validateRootComponent(rootName, runtime.extensions)
 
     const maybeRenderPromise = render(rootName, runtime)
     if (!canUseDOM) {

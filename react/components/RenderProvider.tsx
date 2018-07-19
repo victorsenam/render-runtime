@@ -86,7 +86,19 @@ class RenderProvider extends Component<Props, RenderProviderState> {
 
   constructor(props: Props) {
     super(props)
-    const {appsEtag, cacheHints, culture, messages, components, extensions, pages, page, query, production, settings} = props.runtime
+    const {
+      appsEtag,
+      cacheHints,
+      culture,
+      messages,
+      components,
+      extensions,
+      pages,
+      page,
+      query,
+      production,
+      settings
+    } = props.runtime
     const {history, baseURI, cacheControl} = props
 
     if (history) {
@@ -243,6 +255,8 @@ class RenderProvider extends Component<Props, RenderProviderState> {
     const {culture: {locale}, pages: pagesState, production, device} = this.state
     const {pathname, state} = location
 
+    console.log('page changed', state, pathname, pagesState)
+
     // Make sure this is our navigation
     if (!state || !state.renderRouting) {
       return
@@ -323,12 +337,17 @@ class RenderProvider extends Component<Props, RenderProviderState> {
 
     const {components, culture: {locale}} = this.state
     const {apps, assets} = traverseComponent(components, component)
-    const unfetchedApps = apps.filter(app => !Object.keys(window.__RENDER_7_COMPONENTS__).some(c => c.startsWith(app)))
+    const unfetchedApps = apps.filter(
+      app => !Object.keys(window.__RENDER_7_COMPONENTS__).some(c => c.startsWith(app))
+    )
+
     if (unfetchedApps.length === 0) {
       return fetchAssets(assets)
     }
 
-    const messagesPromises = Promise.all(unfetchedApps.map(app => fetchMessagesForApp(this.apolloClient, app, locale)))
+    const messagesPromises = Promise.all(
+      unfetchedApps.map(app => fetchMessagesForApp(this.apolloClient, app, locale))
+    )
     const assetsPromise = fetchAssets(assets)
 
     return Promise.all([messagesPromises, assetsPromise]).then(([messages]) => {
@@ -473,13 +492,16 @@ class RenderProvider extends Component<Props, RenderProviderState> {
         </div>
       )
 
-    const root = page.split('/')[0]
+    const [root] = page.split('/')
     const editorProvider = extensions[`${root}/__provider`]
     const context = this.getChildContext()
     const EditorProvider = editorProvider && getImplementation<any>(editorProvider.component)
     const maybeEditable = !production && EditorProvider
-      ? <EditorProvider runtime={context} extensions={extensions} pages={pages} page={page}>{component}</EditorProvider>
-      : component
+      ? (
+        <EditorProvider runtime={context} extensions={extensions} pages={pages} page={page}>
+          {component}
+        </EditorProvider>
+      ) : component
 
     return (
       <RenderContext.Provider value={context}>
