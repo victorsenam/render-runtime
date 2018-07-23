@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 
 import ExtensionPoint from './ExtensionPoint'
 
-type Element = string | any[]
+type Element = Object | any[]
 
 interface LayoutContainerProps {
   elements: Element[]
@@ -24,20 +24,32 @@ class Container extends Component<ContainerProps> {
 
   public render() {
     const { isRow, elements, children, ...props } = this.props
+    const className = `flex flex-grow-1 ${isRow ? 'flex-row' : 'flex-column'}`
+    let nextElements = elements
+    let style = {}
 
-    const className = `flex flex-grow-1 w-100 ${isRow ? 'flex-row' : 'flex-column'}`
-    if (typeof elements === 'string') {
-      if (elements === '__children__') {
+    if (typeof elements == 'object' && !Array.isArray(elements)) {
+      style = {
+        backgroundColor: elements.backgroundColor,
+        padding: elements.padding,
+        margin: elements.margin
+      }
+
+      nextElements = elements.children
+    }
+
+    if (typeof nextElements === 'string') {
+      if (nextElements === '__children__') {
         return children
       }
       return (
-        <div className={isRow ? '' : className}>
-          <ExtensionPoint id={elements} {...props} />
+        <div className={isRow ? '' : className} style={style}>
+          <ExtensionPoint id={nextElements} {...props} />
         </div>
       )
     }
 
-    const returnValue: JSX.Element[] = elements.map((element: Element, index: number) => {
+    const returnValue: JSX.Element[] = nextElements.map((element: Element, index: number) => {
       return (
         <Container key={index} elements={element} isRow={!isRow} {...props} >
           {children}
@@ -46,7 +58,7 @@ class Container extends Component<ContainerProps> {
     })
 
     return (
-      <div className={className}>
+      <div className={className} style={style}>
         {returnValue}
       </div>
     )
