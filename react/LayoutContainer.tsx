@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 
 import ExtensionPoint from './ExtensionPoint'
 
@@ -37,9 +37,9 @@ class Container extends Component<ContainerProps> {
       )
     }
 
-    const returnValue: JSX.Element[] = elements.map((element: Element) => {
+    const returnValue: JSX.Element[] = elements.map((element: Element, index: number) => {
       return (
-        <Container key={element.toString()} elements={element} isRow={!isRow} {...props} >
+        <Container key={index} elements={element} isRow={!isRow} {...props} >
           {children}
         </Container>
       )
