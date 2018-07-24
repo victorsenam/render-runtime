@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 
 import ExtensionPoint from './ExtensionPoint'
 
-type Element = Object | any[]
+type Element = Object | string | any[]
 
 interface LayoutContainerProps {
   elements: Element[]
@@ -26,15 +26,20 @@ class Container extends Component<ContainerProps> {
     const { isRow, elements, children, ...props } = this.props
     const className = `flex flex-grow-1 ${isRow ? 'flex-row' : 'flex-column'}`
     let nextElements = elements
+    let marginClasses = ''
     let style = {}
 
     if (typeof elements == 'object' && !Array.isArray(elements)) {
+      const mt = elements.marginTop === undefined ? '' : elements.marginTop
+      const mb = elements.marginBottom === undefined ? '' : elements.marginBottom
+      const ml = elements.marginLeft === undefined ? '' : elements.marginLeft
+      const mr = elements.marginRight === undefined ? '' : elements.marginRight
+
       style = {
         backgroundColor: elements.backgroundColor,
-        padding: elements.padding,
-        margin: elements.margin
+        padding: elements.padding
       }
-
+      marginClasses = " mt" + mt + " mb" + mb + " ml" + ml + " mr" + mr
       nextElements = elements.children
     }
 
@@ -43,7 +48,7 @@ class Container extends Component<ContainerProps> {
         return children
       }
       return (
-        <div className={isRow ? '' : className} style={style}>
+        <div className={(isRow ? '' : className) + marginClasses} style={style}>
           <ExtensionPoint id={nextElements} {...props} />
         </div>
       )
@@ -58,7 +63,7 @@ class Container extends Component<ContainerProps> {
     })
 
     return (
-      <div className={className} style={style}>
+      <div className={className + marginClasses} style={style}>
         {returnValue}
       </div>
     )
