@@ -48,7 +48,10 @@ class ExtensionPointComponent extends PureComponent<Props & RenderContextProps, 
 
     this.setState({error: null, errorInfo: null, lastUpdate: Date.now()})
     const {component: mounted, treePath} = this.props
-    console.log(`[render] Component updated. treePath=${treePath} ${mounted !== component ? `mounted=${mounted} ` : ''}updated=${component}`)
+    console.log(
+      `[render] Component updated. treePath=${treePath}`,
+      `${mounted !== component ? `mounted=${mounted} ` : ''}updated=${component}`
+    )
   }
 
   public fetchAndRerender = () => {
@@ -119,7 +122,13 @@ class ExtensionPointComponent extends PureComponent<Props & RenderContextProps, 
         return null
       }
 
-      const errorInstance = <ExtensionPointError error={error} errorInfo={errorInfo!} treePath={treePath} />
+      const errorInstance = (
+        <ExtensionPointError
+          error={error}
+          errorInfo={errorInfo!}
+          treePath={treePath}
+        />
+      )
       props.__errorInstance = errorInstance
       props.__clearError = this.clearError
 

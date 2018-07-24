@@ -236,8 +236,6 @@ interface RenderComponent<P={}, S={}> {
   }
 
   interface RuntimeExports {
-    start(): void
-    render(name: string, runtime: RenderRuntime, element?: HTMLElement): Rendered
     ExtensionContainer: typeof ExtensionContainer
     ExtensionPoint: typeof ExtensionPoint
     Link: typeof Link
@@ -251,6 +249,8 @@ interface RenderComponent<P={}, S={}> {
     RenderContextConsumer: React.Consumer<RenderContext>
     TreePathContextConsumer: React.Consumer<TreePathProps>
     buildCacheLocator: any
+    start(): void
+    render(name: string, runtime: RenderRuntime, element?: HTMLElement): Rendered
   }
 
   interface Window extends Window {

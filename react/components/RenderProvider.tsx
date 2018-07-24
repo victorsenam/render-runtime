@@ -47,11 +47,13 @@ export interface RenderProviderState {
   production: RenderRuntime['production']
   query: RenderRuntime['query']
   settings: RenderRuntime['settings']
+  assets: any[]
 }
 
 class RenderProvider extends Component<Props, RenderProviderState> {
   public static childContextTypes = {
     account: PropTypes.string,
+    assets: PropTypes.arrayOf(PropTypes.string),
     components: PropTypes.object,
     culture: PropTypes.object,
     device: PropTypes.string,
@@ -86,7 +88,19 @@ class RenderProvider extends Component<Props, RenderProviderState> {
 
   constructor(props: Props) {
     super(props)
-    const {appsEtag, cacheHints, culture, messages, components, extensions, pages, page, query, production, settings} = props.runtime
+    const {
+      appsEtag,
+      cacheHints,
+      culture,
+      messages,
+      components,
+      extensions,
+      pages,
+      page,
+      query,
+      production,
+      settings
+    } = props.runtime
     const {history, baseURI, cacheControl} = props
 
     if (history) {
@@ -100,6 +114,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
     this.apolloClient = getClient(props.runtime, baseURI, runtimeContextLink, cacheControl)
     this.state = {
       appsEtag,
+      assets: [],
       cacheHints,
       components,
       culture,
@@ -153,11 +168,15 @@ class RenderProvider extends Component<Props, RenderProviderState> {
 
   public getChildContext() {
     const {history, runtime} = this.props
-    const {components, extensions, page, pages, settings, culture, device} = this.state
+    const {assets, components, extensions, page, pages, settings, culture, device} = this.state
     const {account, emitter, production, workspace} = runtime
+
+    const component = extensions[page].component
+    const {assets: componentAssets} = traverseComponent(components, component)
 
     return {
       account,
+      assets: [...assets, ...componentAssets],
       components,
       culture,
       device,
@@ -326,12 +345,25 @@ class RenderProvider extends Component<Props, RenderProviderState> {
 
     const {components, culture: {locale}} = this.state
     const {apps, assets} = traverseComponent(components, component)
-    const unfetchedApps = apps.filter(app => !Object.keys(window.__RENDER_7_COMPONENTS__).some(c => c.startsWith(app)))
+    const unfetchedApps = apps
+      .filter(app =>
+        !Object.keys(window.__RENDER_7_COMPONENTS__).some(c => c.startsWith(app))
+      )
+
+    this.setState({
+      assets: [
+        ...this.state.assets,
+        ...assets,
+      ]
+    })
+
     if (unfetchedApps.length === 0) {
       return fetchAssets(assets)
     }
 
-    const messagesPromises = Promise.all(unfetchedApps.map(app => fetchMessagesForApp(this.apolloClient, app, locale)))
+    const messagesPromises = Promise.all(unfetchedApps.map(
+      app => fetchMessagesForApp(this.apolloClient, app, locale)
+    ))
     const assetsPromise = fetchAssets(assets)
 
     return Promise.all([messagesPromises, assetsPromise]).then(([messages]) => {
@@ -485,7 +517,7 @@ class RenderProvider extends Component<Props, RenderProviderState> {
       : component
 
     return (
-      <RenderContext.Provider value={context}>
+      <RenderContext.Provider value={context as any}>
         <TreePathContext.Provider value={{treePath: ''}}>
           <ApolloProvider client={this.apolloClient}>
             <IntlProvider locale={locale} messages={mergedMessages}>

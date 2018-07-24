@@ -65,7 +65,13 @@ const render = (name: string, runtime: RenderRuntime, element?: HTMLElement): Re
   const elem = element || getContainer(name)
   const history = canUseDOM && isPage && !customRouting ? createHistory() : null
   const root = (
-    <RenderProvider history={history} cacheControl={cacheControl} baseURI={baseURI} root={name} runtime={runtime}>
+    <RenderProvider
+      history={history}
+      cacheControl={cacheControl}
+      baseURI={baseURI}
+      root={name}
+      runtime={runtime}
+    >
       {!isPage ? <ExtensionPoint id={name} /> : null}
     </RenderProvider>
   )
