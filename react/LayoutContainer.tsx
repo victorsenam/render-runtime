@@ -25,31 +25,38 @@ class Container extends Component<ContainerProps> {
   public render() {
     const { isRow, elements, children, ...props } = this.props
     const className = `flex flex-grow-1 ${isRow ? 'flex-row' : 'flex-column'}`
-    let nextElements = elements
+    let id, nextElements
     let marginClasses = ''
+    let paddingClasses = ''
     let style = {}
 
+    id = nextElements = elements
+    
     if (typeof elements == 'object' && !Array.isArray(elements)) {
-      const mt = elements.marginTop === undefined ? '' : elements.marginTop
-      const mb = elements.marginBottom === undefined ? '' : elements.marginBottom
-      const ml = elements.marginLeft === undefined ? '' : elements.marginLeft
-      const mr = elements.marginRight === undefined ? '' : elements.marginRight
+      const mt = elements.marginTop === undefined ? '0' : elements.marginTop
+      const mb = elements.marginBottom === undefined ? '0' : elements.marginBottom
+      const ml = elements.marginLeft === undefined ? '0' : elements.marginLeft
+      const mr = elements.marginRight === undefined ? '0' : elements.marginRight
+      const pt = elements.paddingTop === undefined ? '0' : elements.paddingTop
+      const pb = elements.paddingBottom === undefined ? '0' : elements.paddingBottom
+      const pl = elements.paddingLeft === undefined ? '0' : elements.paddingLeft
+      const pr = elements.paddingRight === undefined ? '0' : elements.paddingRight
 
-      style = {
-        backgroundColor: elements.backgroundColor,
-        padding: elements.padding
-      }
+      style = { backgroundColor: elements.backgroundColor }
       marginClasses = " mt" + mt + " mb" + mb + " ml" + ml + " mr" + mr
+      paddingClasses = " pt" + pt + " pb" + pb + " pl" + pl + " pr" + pr
       nextElements = elements.children
+      id = elements.id
     }
 
-    if (typeof nextElements === 'string') {
-      if (nextElements === '__children__') {
+    if (typeof id === 'string') {
+      if (id === '__children__') {
         return children
       }
+
       return (
-        <div className={(isRow ? '' : className) + marginClasses} style={style}>
-          <ExtensionPoint id={nextElements} {...props} />
+        <div className={(isRow ? '' : className) + marginClasses + paddingClasses} style={style}>
+          <ExtensionPoint id={id} {...props} />
         </div>
       )
     }
