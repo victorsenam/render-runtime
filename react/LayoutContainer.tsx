@@ -3,7 +3,21 @@ import React, { Component } from 'react'
 
 import ExtensionPoint from './ExtensionPoint'
 
-type Element = Object | string | any[]
+type Element = ElementProps | string | any[]
+
+interface ElementProps {
+  id?: string
+  style?: StyleProps
+  children?: Element[]
+}
+
+interface StyleProps {
+  bgColor: string
+  horizontalAlign: string
+  margin: string[]
+  padding: string[]
+  verticalAlign: string
+}
 
 interface LayoutContainerProps {
   elements: Element[]
