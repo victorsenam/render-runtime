@@ -1,0 +1,7 @@
+query AvailableComponents($extensionName: String, $renderMajor: Int){
+  availableComponents(extensionName: $extensionName, renderMajor: $renderMajor, production: false) {
+    name,
+    assets,
+    dependencies,
+  }
+}
