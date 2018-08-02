@@ -3,6 +3,8 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import ExtensionPoint from './ExtensionPoint'
+import EmptyExtensionPoint from './components/EmptyExtensionPoint'
+import { RenderContext } from './components/RenderContext'
 
 type TemplateElement = ElementProps | string | any[]
 
@@ -30,22 +32,6 @@ interface ContainerProps {
   confusion?: number
 }
 
-class EmptyExtensionPoint extends Component {
-  render() {
-    return (
-      <div className='h-100' style={{
-        minHeight: '40px'
-      }}>
-        <div className="flex items-center justify-center w-100 h-100 ba b--mid-gray b--dashed pa6-ns pa6 blue tc bg-washed-blue bw1">
-          <div className="fw7 pt2">
-            Add Component
-          </div>
-        </div>
-      </div>
-    )
-  }
-}
-
 const elementPropType = PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired
 
 class Container extends Component<ContainerProps> {
@@ -71,12 +57,12 @@ class Container extends Component<ContainerProps> {
 
     const id = elements.id ? elements.id : elements
     const nextElements = elements.children ? elements.children : elements
-    const margin = style && style.margin ? style.margin : [ '0', '0', '0', '0' ]
-    const padding = style && style.padding ? style.padding : [ '0', '0', '0', '0' ]
+    const margin = style && style.margin ? style.margin : ['0', '0', '0', '0']
+    const padding = style && style.padding ? style.padding : ['0', '0', '0', '0']
     const bgColor = style && style.backgroundColor ? style.backgroundColor : 'transparent'
 
-    const marginClasses = " mt" + margin[0] + " mr" + margin[1] + " mb" + margin[2] + " ml" + margin[3]
-    const paddingClasses = " pt" + padding[0] + " pr" + padding[1] + " pb" + padding[2] + " pl" + padding[3]
+    const marginClasses = ' mt' + margin[0] + ' mr' + margin[1] + ' mb' + margin[2] + ' ml' + margin[3]
+    const paddingClasses = ' pt' + padding[0] + ' pr' + padding[1] + ' pb' + padding[2] + ' pl' + padding[3]
 
     if (typeof id === 'string') {
       if (id === '__children__') {
@@ -87,7 +73,15 @@ class Container extends Component<ContainerProps> {
         <div
           className={isRow ? marginClasses : (className + paddingClasses)}
           style={{ backgroundColor: bgColor }}>
-          <EmptyExtensionPoint id={id} {...props} />
+          <RenderContext.Consumer>
+            {runtime => {
+              const treePath = [ runtime.page, id ].join('/')
+              return runtime.extensions[treePath] === undefined
+                ? <EmptyExtensionPoint id={id} {...props} runtime={runtime} />
+                : <ExtensionPoint id={id} {...props} />
+            }
+            }
+          </RenderContext.Consumer>
         </div>
       )
     }
@@ -97,7 +91,7 @@ class Container extends Component<ContainerProps> {
         <Container key={index} elements={element} isRow={!isRow} {...props} confusion={
           confusion === undefined ? 0 : (
             isRow ? confusion + 1 : (
-              index === nextElements.length-1 ? confusion : 0
+              index === nextElements.length - 1 ? confusion : 0
             )
           )
         } >
