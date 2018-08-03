@@ -29,7 +29,7 @@ interface LayoutContainerProps {
 interface ContainerProps {
   elements: TemplateElement
   isRow: boolean
-  confusion?: number
+  index: number[]
 }
 
 const elementPropType = PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired
@@ -38,20 +38,29 @@ class Container extends Component<ContainerProps> {
   public static propTypes = {
     elements: elementPropType,
     isRow: PropTypes.bool,
-    confusion: PropTypes.number
+    index: PropTypes.arrayOf(PropTypes.number),
   }
 
   public componentDidMount() {
-    const element = ReactDOM.findDOMNode(this) as Element
-    element.addEventListener('mousemove', this.onMouseMove)
+    this.addData()
   }
 
-  public onMouseMove(e: any) {
-    // handle mouse move
+  public componentDidUpdate() {
+    this.addData()
+  }
+
+  public addData = () => {
+    const { index } = this.props
+    if (index.length === 1) {
+      const element = ReactDOM.findDOMNode(this) as Element
+      if (element && element.setAttribute) {
+        element.setAttribute('layout-container-section', `${index[0]}`)
+      }
+    }
   }
 
   public render() {
-    const { isRow, elements, children, confusion, ...props } = this.props
+    const { isRow, elements, children, index, ...props } = this.props
     const style = elements.style
     const className = `flex flex-grow-1 ${isRow ? 'flex-row' : 'flex-column'}`
 
@@ -71,8 +80,9 @@ class Container extends Component<ContainerProps> {
 
       return (
         <div
-          className={isRow ? marginClasses : (className + paddingClasses)}
-          style={{ backgroundColor: bgColor }}>
+          className={isRow ? 'flex flex-grow-1' + marginClasses : (className + paddingClasses)}
+          style={{ backgroundColor: bgColor }}
+        >
           <RenderContext.Consumer>
             {runtime => {
               const treePath = [ runtime.page, id ].join('/')
@@ -86,15 +96,10 @@ class Container extends Component<ContainerProps> {
       )
     }
 
-    const returnValue: JSX.Element[] = nextElements.map((element: Element, index: number) => {
+    const returnValue: JSX.Element[] = nextElements.map((element: Element, childId: number) => {
+      const newIndex = index.concat([childId])
       return (
-        <Container key={index} elements={element} isRow={!isRow} {...props} confusion={
-          confusion === undefined ? 0 : (
-            isRow ? confusion + 1 : (
-              index === nextElements.length - 1 ? confusion : 0
-            )
-          )
-        } >
+        <Container key={newIndex.join('-')} elements={element} isRow={!isRow} {...props} index={newIndex}>
           {children}
         </Container>
       )
@@ -103,7 +108,8 @@ class Container extends Component<ContainerProps> {
     return (
       <div
         className={className + (isRow ? marginClasses : paddingClasses)}
-        style={{ backgroundColor: bgColor }}>
+        style={{ backgroundColor: bgColor }}
+      >
         {returnValue}
       </div>
     )
@@ -117,7 +123,11 @@ class LayoutContainer extends Component<LayoutContainerProps> {
   }
 
   public render() {
-    return <Container {...this.props} isRow={false} />
+    return (
+      <div>
+        <Container {...this.props} isRow={false} index={[]} />
+      </div>
+    )
   }
 }
 
