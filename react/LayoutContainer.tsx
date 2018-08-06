@@ -41,24 +41,6 @@ class Container extends Component<ContainerProps> {
     index: PropTypes.arrayOf(PropTypes.number),
   }
 
-  public componentDidMount() {
-    this.addData()
-  }
-
-  public componentDidUpdate() {
-    this.addData()
-  }
-
-  public addData = () => {
-    const { index } = this.props
-    if (index.length === 1) {
-      const element = ReactDOM.findDOMNode(this) as Element
-      if (element && element.setAttribute) {
-        element.setAttribute('layout-container-section', `${index[0]}`)
-      }
-    }
-  }
-
   public render() {
     const { isRow, elements, children, index, ...props } = this.props
     const style = elements.style

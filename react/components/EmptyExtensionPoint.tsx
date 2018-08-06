@@ -7,6 +7,7 @@ import { RenderContextProps } from './RenderContext'
 interface EmptyExtensionPointProps {
   id: string
   availableComponents: any
+  runtime: RenderContext
 }
 
 interface EmptyExtensionPointState {
@@ -95,10 +96,11 @@ class EmptyExtensionPoint extends Component<EmptyExtensionPointProps & RenderCon
 
     return (
       <Fragment>
-        <div className="h-100" style={{ minHeight: '40px' }}>
+        <div className="flex flex-grow-1 min-h-100">
           <div
-            className="flex items-center justify-center w-100 h-100 ba b--mid-gray b--dashed pa6-ns pa6 blue tc bg-washed-blue bw1 pointer"
-            onClick={this.openModal}>
+            className="flex items-center justify-center w-100 min-h-100 ba b--silver b--dashed pa6-ns pa6 blue tc bg-light-silver"
+            onClick={this.openModal}
+          >
             <div className="fw7 pt2">
               Add Component
             </div>
