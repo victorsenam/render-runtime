@@ -62,7 +62,7 @@ class Container extends Component<ContainerProps> {
 
       return (
         <div
-          className={isRow ? 'flex flex-grow-1' + marginClasses : (className + paddingClasses)}
+          className={isRow ? marginClasses : (className + paddingClasses)}
           style={{ backgroundColor: bgColor }}
         >
           <RenderContext.Consumer>
@@ -71,7 +71,7 @@ class Container extends Component<ContainerProps> {
               return runtime.extensions[treePath] === undefined
                 ? <EmptyExtensionPoint id={id} {...props} runtime={runtime} />
                 : <ExtensionPoint id={id} {...props} />
-            }
+              }
             }
           </RenderContext.Consumer>
         </div>
